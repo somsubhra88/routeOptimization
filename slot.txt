@@ -1,0 +1,16 @@
+SELECT
+    sl.id as slot_id,
+    sc.id as slot_ref_id,
+    sl.facility_id,
+    sl.route_id,
+    sl.start_date as slot_start_dt,
+    sl.end_date as slot_end_dt,
+    upper(fac.name) as facility_name,
+    sa.code as route_code
+FROM slot_capacities sc
+LEFT JOIN slots sl on sc.slot_id=sl.id
+LEFT JOIN facilities fac on fac.id=sl.facility_id
+LEFT JOIN storage_areas sa on sa.id=sl.route_id
+WHERE 
+    sc.id in (?) and sl.active=1
+;

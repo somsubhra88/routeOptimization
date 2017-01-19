@@ -1,0 +1,8 @@
+SELECT 
+    sh.display_id as merchant_ref_id,
+    sh.tracking_id as tracking_id,
+    cou.name as courier_name,
+    'b2c' as shipment_company
+FROM shipments sh
+LEFT JOIN couriers cou ON cou.id=sh.courier_id
+WHERE sh.tracking_id IN (?);

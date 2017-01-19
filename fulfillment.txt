@@ -1,0 +1,23 @@
+select 
+    fiu.id as fiu_id,
+    fiu.region as fiu_region,
+    fiu.region_type as fiu_region_type,
+    fiu.fulfill_item_id as fi_id,
+    fiu.status as fiu_status,
+    map.mapping_type as fiu_mapping_type,
+    map.external_id as fiu_external_id,
+    fia.customer_promised_date as fi_cpd,
+    fia.payment_mode as fi_payment_mode,
+    fia.shipping_pin_code as fi_pincode,
+    fi.fsn as product_id,
+    fi.seller_id as seller_id,
+    fia.shipping_address_id
+from 
+    fulfill_item_units as fiu
+left join mappings as map on map.mappable_id=fiu.id
+left join fulfill_items as fi on fi.id=fiu.fulfill_item_id
+left join fulfill_item_attributes as fia on fia.entity_id=fiu.fulfill_item_id
+where 
+    map.mapping_type in ('oms.order_item','oms.external_order','lpe.slot_ref_id','ekl.shipment') 
+    and map.mappable_type='FulfillItemUnit'
+    and fiu.id in (select map2.mappable_id from mappings map2 where map2.mapping_type='ekl.shipment' and map2.external_id in (?));

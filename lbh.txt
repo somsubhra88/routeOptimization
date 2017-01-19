@@ -1,0 +1,13 @@
+SELECT Distinct
+     fsn as product_id, 
+     max(length) as fsn_length, 
+     max(breadth) as fsn_breadth, 
+     max(height) as fsn_height,
+     max((length * breadth * height)) as fsn_volume, 
+     max(shipping_weight) as shipping_weight
+FROM
+    product_details
+WHERE
+    fsn in (?)
+GROUP BY fsn
+;

@@ -1,0 +1,63 @@
+SELECT DISTINCT
+    T1.fiu_id AS fiu_id,
+    T1.fiu_region AS fiu_region,
+    T1.fiu_region_type AS fiu_region_type,
+    T1.fi_id AS fi_id,
+    T1.fiu_status AS fiu_status,
+    T1.fi_cpd AS fi_cpd,
+    T1.fi_payment_mode AS fi_payment_mode,
+    T1.fi_pincode AS fi_pincode,
+    T1.product_id AS product_id,
+    T1.seller_id AS seller_id,
+    T1.shipping_address_id AS shipping_address_id,
+    T2.order_external_id AS order_external_id,
+    T3.order_item_id AS order_item_id,
+    T4.slot_ref_id AS slot_ref_id,
+    T5.merchant_ref_id AS merchant_ref_id
+FROM
+    fulfillment AS T1
+LEFT JOIN
+(
+    SELECT DISTINCT
+        fiu_id,
+        fiu_external_id as order_external_id
+    FROM
+        fulfillment
+    WHERE
+        fiu_mapping_type='oms.external_order'
+) AS T2
+ON T1.fiu_id = T2.fiu_id
+LEFT JOIN
+(
+    SELECT
+        fiu_id,
+        fiu_external_id as order_item_id
+    FROM
+        fulfillment
+    WHERE 
+        fiu_mapping_type='oms.order_item'
+) AS T3
+ON T1.fiu_id = T3.fiu_id
+LEFT JOIN
+(
+    SELECT
+        fiu_id,
+        fiu_external_id AS slot_ref_id
+    FROM
+        fulfillment
+    WHERE 
+        fiu_mapping_type='lpe.slot_ref_id'
+) AS T4
+ON T1.fiu_id = T4.fiu_id
+LEFT JOIN
+(
+    SELECT
+        fiu_id,
+        fiu_external_id AS merchant_ref_id
+    FROM
+        fulfillment
+    WHERE 
+        fiu_mapping_type='ekl.shipment'
+) AS T5
+ON T1.fiu_id = T5.fiu_id
+;

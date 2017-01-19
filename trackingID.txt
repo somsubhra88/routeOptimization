@@ -1,0 +1,23 @@
+SELECT DISTINCT 
+    scm.shipmentId AS tracking_id,
+    sc.destHubId AS destHubId, 
+    sc.createDateTime AS createDateTime
+FROM 
+    fklogistics.shippingConsignmentShipmentMapping scm
+LEFT JOIN shippingConsignment sc
+ON
+    sc.consignmentId = scm.consignmentId
+WHERE 
+    sc.destHubId in (?) and date(sc.createDateTime)>=? and date(sc.createDateTime)<=?
+UNION
+SELECT DISTINCT 
+    shipmentId AS tracking_id,
+    hubId AS destHubId, 
+    updateDateTime AS createDateTime
+FROM 
+    shipmentRouteEvent 
+WHERE 
+    assignedHubId IN (?) 
+    AND hubId IN (?)
+    AND statusId in (4,5,6,7,8,9,10,11,12,13,14,33,34,35,36,37,38,41,79,82,85,96,97,99,101,102,103)
+    AND updateDateTime>'2016-01-01';

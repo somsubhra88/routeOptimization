@@ -1,0 +1,35 @@
+SELECT
+    T1.tracking_id AS tracking_id,
+    T1.destHubId AS destHubId,
+    T1.createDateTime AS createDateTime,
+    T2.merchant_ref_id AS merchant_ref_id,
+    T2.courier_name AS courier_name,
+    T2.shipment_company AS shipment_company,
+    T3.fiu_id AS fiu_id, 
+    T3.fiu_region AS fiu_region, 
+    T3.fiu_region_type AS fiu_region_type, 
+    T3.fi_id AS fi_id, 
+    T3.fiu_status AS fiu_status,
+    T3.fi_cpd AS fi_cpd, 
+    T3.fi_payment_mode AS fi_payment_mode, 
+    T3.fi_pincode AS fi_pincode, 
+    T3.product_id AS product_id,
+    T3.seller_id AS seller_id, 
+    T3.shipping_address_id AS shipping_address_id, 
+    T3.order_external_id AS order_external_id,
+    T3.order_item_id AS order_item_id, 
+    T3.slot_ref_id AS slot_ref_id, 
+    T3.merchant_ref_id AS merchant_ref_id,
+    T4.facility_id AS facility_id,
+    T6.address_pincode AS address_pincode,
+    T6.address_city AS address_city,
+    T6.address_state AS address_state,
+    T6.address_line1 AS address_line1,
+    T6.address_line2 AS address_line2
+FROM
+    trackingID AS T1
+LEFT JOIN shipment AS T2 ON T1.tracking_id = T2.tracking_id
+LEFT JOIN fulfillment_1 AS T3 ON T2.merchant_ref_id = T3.merchant_ref_id
+LEFT JOIN slot AS T4 ON T3.slot_ref_id = T4.slot_ref_id
+LEFT JOIN address AS T6 ON T3.shipping_address_id = T6.shipping_address_id
+;
