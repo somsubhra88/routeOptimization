@@ -183,7 +183,7 @@ for iteration in range(maxIT):
                 endTime = slotData[nextNode]['start'] + timedelta(hours=deliveryTime)
             else:
                 endTime = endTime + timedelta(hours=timeMatrix[lastNode][nextNode] + deliveryTime)
-            if nextNode != 'Sink' and slotData[nextNode]['start'].hour <= endTime.hour <= slotData[nextNode]['end'].hour:
+            if nextNode != 'Sink' and slotData[nextNode]['start'].time() <= endTime.time() <= slotData[nextNode]['end'].time():
                 slotAdherence[nextNode] = 1
 
             if nextNode != 'Sink':

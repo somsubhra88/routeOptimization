@@ -89,7 +89,7 @@ def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, 
 
             if to == 'Sink':
                 slotAdherence = None
-            elif slotStartTime.hour <= hittingTime.hour <= slotEndTime.hour:
+            elif slotStartTime.time() <= hittingTime.time() <= slotEndTime.time():
                 slotAdherence = 1
             else:
                 slotAdherence = 0
@@ -167,4 +167,3 @@ def updateRoute(route,timeMatrix, slotData, deliveryTime):
                 currentSA = chkSA
 
     return route
-
