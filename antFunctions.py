@@ -51,7 +51,7 @@ def routeEntry(route):
         touredTID  = touredTID | set(route[i])
     return touredTID
 
-def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, fileName):
+def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, directory, fileName):
     from datetime import timedelta
     import csv
     noOfVans = len(route)
@@ -117,7 +117,7 @@ def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, 
 
     csv.register_dialect('customDialect',delimiter=',', quotechar='"', doublequote=True,skipinitialspace=True,
                          lineterminator='\n',quoting=csv.QUOTE_MINIMAL)
-    with open('Detail Path - ' + str(fileName) + '.csv','w') as detailPathCSV:
+    with open(directory + 'Detail Path - ' + str(fileName) + '.csv','w') as detailPathCSV:
         dataWriter = csv.writer(detailPathCSV, dialect = 'customDialect')
         for row in detailPath:
             dataWriter.writerow(row)

@@ -6,7 +6,8 @@ def point(addr1, addr2, pincode, city, state):
     header = {'referer': 'http://large-analytics.flipkart.com/'}
 
     # geoCodeAPI = "https://maps.flipkart.com/geocode?"
-    geoCodeAPI = "https://maps.flipkart.com/geocode?"
+    # geoCodeAPI = "https://maps.flipkart.com/geocode?"
+    geoCodeAPI = "http://10.85.50.71/geocode?"
 
     addr1 = quote(str(addr1), safe='')
     pincode = quote(str(pincode), safe='')
@@ -32,7 +33,7 @@ def point(addr1, addr2, pincode, city, state):
         point = json.loads(resp.text)['results'][0]['geometry']['location']
     else:
         print(url1)
-        url1 = "https://maps.flipkart.com/pincode-info?key=" + \
+        url1 = "http://10.85.50.71/pincode-info?key=" + \
                key + "&pincode=" + pincode + "&doctypes=Pincode_region"
         resp = requests.get(url1, headers=header, timeout=None)
         northEast = resp.json()['pincode_info']['Pincode_region']['bounding_box']['northeast']
@@ -51,7 +52,7 @@ def distance(point1, point2):
     requests.adapters.DEFAULT_RETRIES = 30
     key = "0e41de65-d2c5-4ebd-9cfb-a552dae27f3e"
     header = {'referer': 'http://large-analytics.flipkart.com/'}
-    url2 = 'https://maps.flipkart.com/api/v1/directions?point=' + \
+    url2 = 'http://10.85.50.71/directions?point=' + \
            str(point1['lat']) + ',' + str(point1['lng']) + \
            '&point=' + str(point2['lat']) + ',' + str(point2['lng']) + \
            "&key=" + key
@@ -59,7 +60,7 @@ def distance(point1, point2):
     try:
         resp = requests.get(url2, headers=header, timeout=None)
         if resp.json()['info'].get('errors') is None:
-            time = json.loads(resp.text)['paths'][0]['time'] / 3600000
+            time = float(json.loads(resp.text)['paths'][0]['time']) / 3600000
     except:
         notFound = True
         counter = 0
@@ -69,14 +70,14 @@ def distance(point1, point2):
 
             point2['lat'] *= (0.999 ** (1 - (counter % 2))) * (1.001 ** (counter % 2))
             point1['lng'] *= (0.999 ** (1 - (counter % 2))) * (1.001 ** (counter % 2))
-            url2 = 'https://maps.flipkart.com/api/v1/directions?point=' + \
+            url2 = 'http://10.85.50.71/directions?point=' + \
                    str(point1['lat']) + ',' + str(point1['lng']) + \
                    '&point=' + str(point2['lat']) + ',' + str(point2['lng']) + \
                    "&key=" + key
             resp = requests.get(url2, headers=header, timeout=None)
             if resp.json()['info'].get('errors') is None:
                 notFound = False
-                time = json.loads(resp.text)['paths'][0]['time'] / 3600000
+                time = float(json.loads(resp.text)['paths'][0]['time']) / 3600000
             else:
                 counter += 1
             if counter > 1000:
