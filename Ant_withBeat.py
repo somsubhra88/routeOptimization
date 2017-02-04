@@ -1,24 +1,35 @@
-# Calculation of Time Matrix, Load Data and Slot Data
+# Setting up the working Directory
+workingDir = "D:\\SomSubhra\\Route Optimization\\"
+from os import chdir
+chdir(workingDir.strip("\\"))
+# Logging
+import sys
+temp = sys.stdout
+sys.stdout = open('Python Log Route Optimization.txt','w')
+# Importing the Libraries
 from distanceMatrix import distanceMatrix
 from antFunctions import nextHub, path, detailPath, routeEntry, updateRoute
 import pickle
 from copy import deepcopy
 from datetime import timedelta
 import csv
-from math import exp, fabs, ceil
+from math import exp, fabs
+from time import sleep
+import progressbar
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
-#distanceMatrix('route optimization data.csv', {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
+distanceMatrix('route optimization data.csv', {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
 # distanceMatrix('MAN_9.csv', {'lat': 28.714921, 'lng': 77.315002}) #Mandoli
-# distanceMatrix('CHV_10.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
+# distanceMatrix('CHV_17-Dec-16.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
 
-trackingID = pickle.load(open('trackingID.p', 'rb'))
-LatLngData = pickle.load(open('LatLngData.p', 'rb'))
-timeMatrix = pickle.load(open('timeMatrix.p', 'rb'))
-slotData = pickle.load(open('slotData.p', 'rb'))
-loadData = pickle.load(open('loadData.p', 'rb'))
-addressDetail = pickle.load(open('addressDetail.p', 'rb'))
+trackingID = pickle.load(open(workingDir + 'trackingID.p', 'rb'))
+LatLngData = pickle.load(open(workingDir + 'LatLngData.p', 'rb'))
+timeMatrix = pickle.load(open(workingDir + 'timeMatrix.p', 'rb'))
+slotData = pickle.load(open(workingDir + 'slotData.p', 'rb'))
+loadData = pickle.load(open(workingDir + 'loadData.p', 'rb'))
+addressDetail = pickle.load(open(workingDir + 'addressDetail.p', 'rb'))
+beat = pickle.load(open(workingDir + 'beatInf.p', 'rb'))
 
 # Introducing Sink
 trackingID.append('Sink')
@@ -42,14 +53,21 @@ for i in trackingID[:-1]:
             timeMatrix[i][j] = 2
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
+
+# All the travel time less 5 minutes is rounding of to 5 minutes
+for i in trackingID[:-1]:
+    for j in trackingID[1:]:
+        if timeMatrix[i][j] < 5.00/60:
+            timeMatrix[i][j] = 5.00/60
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Global Variable
 
 # Business Constraints
 deliveryTime = 0.25  # Delivery Time in Hours
-Q = [130, 130] # Capacity Limit
-T = 7.5  # Travel Time Limit
+Q = [130, 130]  # Capacity Limit
+T = 10  # Travel Time Limit
 saLimit = 0.85  # Slot Adherence Limit
 maxOrders = 100
 
@@ -60,9 +78,9 @@ lamda = 2000  # Slot Adherence Factor
 saImp = 1 # 0 for without Slot Adherence Importance
 q = 100  # Pheromone Calculation Parameter
 rho = 0.1  # Evaporation Constant
-maxIT = 100  # Maximum Iteration
+maxIT = 1000  # Maximum Iteration
 # bestNoOfAnts = len(Q)-1 + ceil((sum(loadData.values()) - sum(Q[:-1]))/(Q[len(Q)-1]-10)) + 4 # Same as No of Vans
-bestNoOfAnts = 25
+bestNoOfAnts = 7
 # ----------------------------------------------------------------------------------------------------------------------
 # Creation of feasible Matrix
 confusionMatrix = {}
@@ -95,9 +113,9 @@ for s in trackingID[:-1]:
     for d in trackingID[1:]:
         if s != d:
             if confusionMatrix[s][d] == 0:
-                Tau[s][d] = 0
-            else:
                 Tau[s][d] = 50
+            else:
+                Tau[s][d] = 100
         else:
             Tau[s][d] = 0
 # Shouldn't travel directly Hub to Sink
@@ -109,10 +127,10 @@ for s in trackingID[:-1]:
     transitionMatrix[s] = {}
     for d in trackingID[1:]:
         try:
-            transitionMatrix[s][d] = ((Tau[s][d]) ** alpha) * ((1 / (timeMatrix[s][d] + 1 / 60)) ** beta) / \
-                                     sum(((Tau[s][h]) ** alpha) * ((1 / (timeMatrix[s][h] + 1 / 60)) ** beta) for h in
-                                         trackingID[1:])
+            transitionMatrix[s][d] = ((Tau[s][d]) ** alpha) * ((1.00 / (timeMatrix[s][d] + 1.00 / 60)) ** beta) / \
+                                     sum(((Tau[s][h]) ** alpha) * ((1.00 / (timeMatrix[s][h] + 1.00 / 60)) ** beta) for h in trackingID[1:])
         except ZeroDivisionError:
+            print("Error")
             transitionMatrix[s][d] = 0
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -121,59 +139,69 @@ cost = [['Iteration Number', 'Travel Time']]
 bestCost = 9999
 bestCostOnly = 9999
 bestSlotAdherence = 0
-
+# Creation of a progress bar for ACO
+bar = progressbar.ProgressBar(maxval = maxIT, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+bar.start()
+originalTrackingID = deepcopy(trackingID)
 # Start of Iteration
 for iteration in range(maxIT):
-    # Slot Adherence Dictionary
-    slotAdherence = {}
-    for i in trackingID:
-        slotAdherence[i] = 0
-
-    nodeList = []
     print("Iteration Number " + str(iteration))
-    # Creation of Decision Matrix
-    decisionMatrix = {}
+    bar.update(iteration)
     ant = 0
-    while len(nodeList) != len(trackingID) - 2:
-        # Defining the Decision Matrix for current Ant
-        decisionMatrix[ant] = {}
-        for i in trackingID[:-1]:
-            decisionMatrix[ant][i] = {}
-            for j in trackingID[1:]:
-                decisionMatrix[ant][i][j] = 0
-        lastNode = 'Hub'
-        while lastNode != 'Sink':
-            # Current Travel time Excluding Return Time
-            TT = sum(decisionMatrix[ant][i][j] * timeMatrix[i][j] for i in trackingID[:-1] for j in trackingID[1:]) + \
-                 sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:]) * deliveryTime
-            # Total Capacity
-            capacity = sum(
-                sum(decisionMatrix[ant][i][j] for j in trackingID[1:]) * loadData[i] for i in trackingID[1:-1])
-            # No of Orders
-            noOfOrders = sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:])
-            # Time Travel Constraints and Capacity Constraints
-            if TT > T or capacity > Q[min(ant,(len(Q) - 1))] or noOfOrders > maxOrders:
-                # print('TT ' + str(TT) + ' and Capacity ' + str(capacity))
-                nextNode = 'Sink'
-            else:
-                nextNode = nextHub(transitionMatrix[lastNode], nodeList)
-            # Slot Adherence Check
-            if lastNode == 'Hub':
-                endTime = slotData[nextNode]['start'] + timedelta(hours=deliveryTime)
-            else:
-                endTime = endTime + timedelta(hours=timeMatrix[lastNode][nextNode] + deliveryTime)
-            if nextNode != 'Sink' and slotData[nextNode]['start'].hour <= endTime.hour <= slotData[nextNode]['end'].hour:
-                slotAdherence[nextNode] = 1
+    decisionMatrix = {}
+    for b in list(set(beat.values())):
+        trackingID = deepcopy(originalTrackingID)
+        for key, val in beat.items():
+            if val != b:
+                trackingID.remove(key)
 
-            if nextNode != 'Sink':
-                nodeList.append(nextNode)
-            # Update the Decision Matrix
-            decisionMatrix[ant][lastNode][nextNode] = 1
-            # Replace the Last node with Next Node
-            lastNode = deepcopy(nextNode)
-            # End of While Loop for current Ant
-        ant += 1
-        # End of While Loop all nodes are visited
+        # Slot Adherence Dictionary
+        slotAdherence = {}
+        for i in trackingID:
+            slotAdherence[i] = 0
+
+        nodeList = []
+        # Creation of Decision Matrix
+        while len(nodeList) != len(trackingID) - 2:
+            # Defining the Decision Matrix for current Ant
+            decisionMatrix[ant] = {}
+            for i in originalTrackingID[:-1]:
+                decisionMatrix[ant][i] = {}
+                for j in originalTrackingID[1:]:
+                    decisionMatrix[ant][i][j] = 0
+            lastNode = 'Hub'
+            while lastNode != 'Sink':
+                # Current Travel time Excluding Return Time
+                TT = sum(decisionMatrix[ant][i][j] * timeMatrix[i][j] for i in trackingID[:-1] for j in trackingID[1:]) + \
+                     sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:]) * deliveryTime
+                # Total Capacity
+                capacity = sum(
+                    sum(decisionMatrix[ant][i][j] for j in trackingID[1:]) * loadData[i] for i in trackingID[1:-1])
+                # No of Orders
+                noOfOrders = sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:])
+                # Time Travel Constraints and Capacity Constraints
+                if TT > T or capacity > Q[min(ant,(len(Q) - 1))] or noOfOrders > maxOrders:
+                    # print('TT ' + str(TT) + ' and Capacity ' + str(capacity))
+                    nextNode = 'Sink'
+                else:
+                    nextNode = nextHub(dict((key,value) for key, value in transitionMatrix[lastNode].items() if key in trackingID), nodeList)
+                # Slot Adherence Check
+                if lastNode == 'Hub':
+                    endTime = slotData[nextNode]['start'] + timedelta(hours=deliveryTime)
+                else:
+                    endTime = endTime + timedelta(hours=timeMatrix[lastNode][nextNode] + deliveryTime)
+                if nextNode != 'Sink' and slotData[nextNode]['start'].hour <= endTime.hour <= slotData[nextNode]['end'].hour:
+                    slotAdherence[nextNode] = 1
+
+                if nextNode != 'Sink':
+                    nodeList.append(nextNode)
+                # Update the Decision Matrix
+                decisionMatrix[ant][lastNode][nextNode] = 1
+                # Replace the Last node with Next Node
+                lastNode = deepcopy(nextNode)
+                # End of While Loop for current Ant
+            ant += 1
+            # End of While Loop all nodes are visited
     noOfAnts = len(decisionMatrix)
     # Update the Pheromone Matrix
     for s in trackingID[:-1]:
@@ -199,8 +227,8 @@ for iteration in range(maxIT):
     # Update the Transition Matrix
     for s in trackingID[:-1]:
         for d in trackingID[1:]:
-            transitionMatrix[s][d] = ((Tau[s][d]) ** alpha) * ((1 / (timeMatrix[s][d] + 1 / 60)) ** beta) / \
-                                     sum(((Tau[s][h]) ** alpha) * ((1 / (timeMatrix[s][h] + 1 / 60)) ** beta) for h in
+            transitionMatrix[s][d] = ((Tau[s][d]) ** alpha) * ((1.00 / (timeMatrix[s][d] + 1.00 / 60)) ** beta) / \
+                                     sum(((Tau[s][h]) ** alpha) * ((1.00 / (timeMatrix[s][h] + 1.00 / 60)) ** beta) for h in
                                          trackingID[1:])
 
     currentCost = sum(decisionMatrix[k][i][j] * timeMatrix[i][j] for k in range(noOfAnts) for i in trackingID[: -1]
@@ -216,6 +244,7 @@ for iteration in range(maxIT):
         bestDecisionMatrixOnly = deepcopy(decisionMatrix)
         bestCostOnly = deepcopy(currentCost)
 
+bar.finish()
 # End of Iteration
 # ----------------------------------------------------------------------------------------------------------------------
 # Cost Trend
@@ -233,7 +262,7 @@ route = updateRoute(route,timeMatrix, slotData, deliveryTime)
 # No of Nodes Visited
 uniqueNodes = routeEntry(route)
 print("No of Nodes Visited " + str(len(uniqueNodes) - 2))
-detailPath = detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, 'Last Output')
+detailPath = detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Last Output')
 
 # Best Case Scenario
 try:
@@ -241,7 +270,7 @@ try:
     # Update the Route
     bestRoute = updateRoute(bestRoute, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRoute, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, 'Optimized Output')
+    detailPath = detailPath(bestRoute, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Optimized Output')
 except NameError:
     print('Best Decision Matrix is not Defined')
 
@@ -251,6 +280,6 @@ try:
     # Update the Route
     bestRouteOnly = updateRoute(bestRouteOnly, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRouteOnly, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, 'Best Cost Output')
+    detailPath = detailPath(bestRouteOnly, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Best Cost Output')
 except NameError:
     print('Best Decision Matrix is not Defined')

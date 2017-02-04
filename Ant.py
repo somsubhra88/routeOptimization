@@ -17,13 +17,11 @@ from math import exp
 from time import sleep
 import progressbar
 
-
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
 distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
 # distanceMatrix('MAN_9.csv', {'lat': 28.714921, 'lng': 77.315002}) #Mandoli
 # distanceMatrix('CHV_10.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
-
 
 trackingID = pickle.load(open(workingDir + 'trackingID.p', 'rb'))
 LatLngData = pickle.load(open(workingDir + 'LatLngData.p', 'rb'))
@@ -31,6 +29,7 @@ timeMatrix = pickle.load(open(workingDir + 'timeMatrix.p', 'rb'))
 slotData = pickle.load(open(workingDir + 'slotData.p', 'rb'))
 loadData = pickle.load(open(workingDir + 'loadData.p', 'rb'))
 addressDetail = pickle.load(open(workingDir + 'addressDetail.p', 'rb'))
+
 
 # Introducing Sink
 trackingID.append('Sink')
@@ -54,6 +53,7 @@ for i in trackingID[:-1]:
             timeMatrix[i][j] = 2
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
+
 # All the travel time less 5 minutes is rounding of to 5 minutes
 for i in trackingID[:-1]:
     for j in trackingID[1:]:
