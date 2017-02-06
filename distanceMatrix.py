@@ -167,10 +167,27 @@ def distanceMatrix(file, Hub):
         raise ValueError('no valid date format found')
 
     slotData = {}
+    missingSlot = []
     for tID in column['tracking_id'][1:]:
         idx = column['tracking_id'][1:].index(tID)
-        slotData[tID] = {'start': try_parsing_date(column['slot_start_dt'][idx]),
-                         'end': try_parsing_date(column['slot_end_dt'][idx])}
+        if (column['slot_start_dt'][idx] is not None and column['slot_start_dt'][idx] != ''):
+            slotData[tID] = {'start': try_parsing_date(column['slot_start_dt'][idx]), 'end': try_parsing_date(column['slot_end_dt'][idx])}
+        else:
+            missingSlot.append(tID)
+    
+    # Missing Slot - Converting it to Minimum Slot Start Time and Max Slot End Time
+    if(len(missingSlot) > 0):
+        minSlotStartTime, maxSlotEndTime = datetime.strptime('08:00', '%H:%M').time(), datetime.strptime('20:00', '%H:%M').time()
+        for tID in [x for x in column['tracking_id'][1:] if x not in missingSlot]:
+            if slotData[tID]['start'].time() < minSlotStartTime:
+                minSlotStartTime = slotData[tID]['start'].time()
+            if slotData[tID]['end'].time() > maxSlotEndTime:
+                maxSlotEndTime = slotData[tID]['end'].time()
+        
+        missingSlotStart, missingSlotEnd = datetime.combine(datetime.now().date(), minSlotStartTime), datetime.combine(datetime.now().date(), maxSlotEndTime)
+        for tID in missingSlot:
+            slotData[tID] = {'start': missingSlotStart, 'end': missingSlotEnd} 
+    
     # Saving the Slot Data
     pickle.dump(slotData, open("slotData.p", "wb"))
     # Load Data

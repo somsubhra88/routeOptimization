@@ -14,7 +14,6 @@ from copy import deepcopy
 from datetime import timedelta
 import csv
 from math import exp
-from time import sleep
 import progressbar
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi

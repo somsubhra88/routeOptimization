@@ -1,8 +1,8 @@
 ---- Latitude and Longitude Loop is started ----
-There is no old data for latitude and longitude, hence creating a new one
+Previous latitude and longitude data is good enough to continue
 ---- latitude and longitude Iteration is Done ----
 ---- Time Matrix Iteration is Started ----
-There is no old Time Matrix exists, hence creating a blank Time Matrix
+Old Time Matrix is Good enough to continue
 Time Matrix creation is Started
 ---- Time Matrix Iteration is Finished ----
 Iteration Number 0
@@ -1005,4 +1005,5 @@ Iteration Number 996
 Iteration Number 997
 Iteration Number 998
 Iteration Number 999
-No of Nodes Visited 8
+No of Nodes Visited 104
+Best Decision Matrix is not Defined
