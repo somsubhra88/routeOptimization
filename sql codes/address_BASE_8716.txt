@@ -1,0 +1,12 @@
+SELECT DISTINCT
+    adr.address_id as shipping_address_id,
+    adr.address_pincode AS address_pincode,
+    adr.address_city AS address_city,
+    adr.address_state AS address_state,
+    adr.address_line1 AS address_line1,
+    adr.address_line2 AS address_line2
+from 
+    bigfoot_external_neo.cp_user__address_hive_dim adr
+where 
+    adr.address_id in (?)
+;
