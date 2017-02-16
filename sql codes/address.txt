@@ -1,12 +1,12 @@
-SELECT DISTINCT
-    adr.address_id as shipping_address_id,
-    adr.address_pincode AS address_pincode,
-    adr.address_city AS address_city,
-    adr.address_state AS address_state,
-    adr.address_line1 AS address_line1,
-    adr.address_line2 AS address_line2
-from 
-    bigfoot_external_neo.cp_user__address_hive_dim adr
-where 
-    adr.address_id in (?)
+SELECT
+  T1.shipmentID AS tracking_id,
+  T2.pinCode AS address_pincode,
+  T2.address1 AS address_line1,
+  T2.address2 AS address_line2,
+  T2.state AS address_state,
+  T2.city AS address_city
+FROM
+  shipment AS T1
+LEFT JOIN customer AS T2 ON T1.deliveryCustomerId = T2.customerId
+WHERE T1.shipmentID IN (?)
 ;
