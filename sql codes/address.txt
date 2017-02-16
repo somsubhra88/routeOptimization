@@ -9,8 +9,4 @@ FROM
   shipment AS T1
 LEFT JOIN customer AS T2 ON T1.deliveryCustomerId = T2.customerId
 WHERE T1.shipmentID IN (?)
-<<<<<<< HEAD
 ;
-=======
-;
->>>>>>> 34a5b07f5d0152665f3137299f2ea91882b538d1
