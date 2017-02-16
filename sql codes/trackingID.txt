@@ -1,58 +1,32 @@
 SELECT
-  T101.tracking_id AS tracking_id,
-  T101.destHubId AS destHubId,
-  T101.createDateTime AS createDateTime,
-  T102.address_state AS address_state,
-  T102.address_city AS address_city,
-  T102.address_pincode AS address_pincode,
-  T102.address_line1 AS address_line1,
-  T102.address_line2 AS address_line2
+    T1.tracking_id AS tracking_id,
+    MAX(T1. destHubId) AS destHubId,
+    MAX(T1.createDateTime) AS createDateTime
 FROM
 (
-  SELECT
-      T1.tracking_id AS tracking_id,
-      MAX(T1. destHubId) AS destHubId,
-      MAX(T1.createDateTime) AS createDateTime
+  SELECT DISTINCT
+      scm.shipmentId AS tracking_id,
+      sc.destHubId AS destHubId,
+      sc.createDateTime AS createDateTime
   FROM
-  (
-    SELECT DISTINCT
-        scm.shipmentId AS tracking_id,
-        sc.destHubId AS destHubId,
-        sc.createDateTime AS createDateTime
-    FROM
-        fklogistics.shippingConsignmentShipmentMapping scm
-    LEFT JOIN shippingConsignment sc
-    ON
-        sc.consignmentId = scm.consignmentId
-    WHERE
-        sc.destHubId in (?) and date(sc.createDateTime)>=? and date(sc.createDateTime)<=?
-    UNION
-    SELECT DISTINCT
-        SRE.shipmentId AS tracking_id,
-        SRE.hubId AS destHubId,
-        SRE.updateDateTime AS createDateTime
-    FROM
-        shipmentRouteEvent as SRE
-    WHERE
-        SRE.assignedHubId IN (?)
-        AND SRE.hubId IN (?)
-        AND SRE.statusId in (4,5,6,7,8,9,10,11,12,13,14,33,34,35,36,37,38,41,79,82,85,96,97,99,101,102,103)
-        AND SRE.updateDateTime>'2016-01-01'
-  ) AS T1
-  GROUP BY T1.tracking_id
-) AS T101
-LEFT JOIN 
-(
-  SELECT
-    T1.shipmentID AS tracking_id,
-    T2.pinCode AS address_pincode,
-    T2.address1 AS address_line1,
-    T2.address2 AS address_line2,
-    T2.state AS address_state,
-    T2.city AS address_city
+      fklogistics.shippingConsignmentShipmentMapping scm
+  LEFT JOIN shippingConsignment sc
+  ON
+      sc.consignmentId = scm.consignmentId
+  WHERE
+      sc.destHubId in (?) and date(sc.createDateTime)>=? and date(sc.createDateTime)<=?
+  UNION
+  SELECT DISTINCT
+      SRE.shipmentId AS tracking_id,
+      SRE.hubId AS destHubId,
+      SRE.updateDateTime AS createDateTime
   FROM
-    shipment AS T1
-  LEFT JOIN customer AS T2 ON T1.deliveryCustomerId = T2.customerId
-) AS T102
-ON T101.tracking_id = T102.tracking_id
+      shipmentRouteEvent as SRE
+  WHERE
+      SRE.assignedHubId IN (?)
+      AND SRE.hubId IN (?)
+      AND SRE.statusId in (4,5,6,7,8,9,10,11,12,13,14,33,34,35,36,37,38,41,79,82,85,96,97,99,101,102,103)
+      AND SRE.updateDateTime>'2016-01-01'
+) AS T1
+GROUP BY T1.tracking_id
 ;
