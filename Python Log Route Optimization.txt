@@ -1,6 +1,34 @@
 ---- Latitude and Longitude Loop is started ----
-Previous latitude and longitude data is good enough to continue
+There is no old data for latitude and longitude, hence creating a new one
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
+http://10.85.50.71/geocode?addr1=&city=&state=&pincode=&key=0e41de65-d2c5-4ebd-9cfb-a552dae27f3e
 ---- latitude and longitude Iteration is Done ----
+Beat Information is Missing for 560083
+Beat Information is Missing for 562112
+Beat Information is Missing for 560041
+Beat Information is Missing for 560041
 ---- Time Matrix Iteration is Started ----
 Old Time Matrix is Good enough to continue
 Time Matrix creation is Started
@@ -1005,5 +1033,4 @@ Iteration Number 996
 Iteration Number 997
 Iteration Number 998
 Iteration Number 999
-No of Nodes Visited 104
-Best Decision Matrix is not Defined
+No of Nodes Visited 146

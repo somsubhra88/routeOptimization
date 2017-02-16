@@ -14,12 +14,11 @@ from copy import deepcopy
 from datetime import timedelta
 import csv
 from math import exp, fabs
-from time import sleep
 import progressbar
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
-distanceMatrix('route optimization data.csv', {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
+distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
 # distanceMatrix('MAN_9.csv', {'lat': 28.714921, 'lng': 77.315002}) #Mandoli
 # distanceMatrix('CHV_17-Dec-16.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
 
@@ -67,8 +66,8 @@ for i in trackingID[:-1]:
 # Business Constraints
 deliveryTime = 0.25  # Delivery Time in Hours
 Q = [130, 130]  # Capacity Limit
-T = 10  # Travel Time Limit
-saLimit = 0.85  # Slot Adherence Limit
+T = 11  # Travel Time Limit
+saLimit = 0.75  # Slot Adherence Limit
 maxOrders = 100
 
 # Algorithm Parameters
@@ -80,7 +79,7 @@ q = 100  # Pheromone Calculation Parameter
 rho = 0.1  # Evaporation Constant
 maxIT = 1000  # Maximum Iteration
 # bestNoOfAnts = len(Q)-1 + ceil((sum(loadData.values()) - sum(Q[:-1]))/(Q[len(Q)-1]-10)) + 4 # Same as No of Vans
-bestNoOfAnts = 7
+bestNoOfAnts = 30
 # ----------------------------------------------------------------------------------------------------------------------
 # Creation of feasible Matrix
 confusionMatrix = {}

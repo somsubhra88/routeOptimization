@@ -10,13 +10,13 @@ def isNaN(x):
     
 ekl_facilities='23'
 start_date = (datetime.now() - timedelta(days = 1)).strftime('%Y-%m-%d')
-end_date=(datetime.now() + timedelta(days = 1)).strftime('%Y-%m-%d')
+end_date=(datetime.now() + timedelta(days = 0)).strftime('%Y-%m-%d')
 targetURL = "https://raw.githubusercontent.com/somsubhra88/routeOptimization/master/sql%20codes/"
 ####################################################################################################################################################
 # Tracking ID
 print("Pulling the tracking IDs")
 # Using pypyodbc driver creating hive connection
-connection = pypyodbc.connect(DSN="fklogistics", autocommit=True)
+connection = pypyodbc.connect(driver = '{MySQL ODBC 5.2a Driver}', server = 'erp-logis-analytics-slave.nm.flipkart.com', uid = 'erp-fklogis_ro', pwd = 'Veey4nu1',  database = 'fklogistics')
 
 # Opening a cursor
 cur = connection.cursor()
@@ -31,6 +31,21 @@ trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, start_date, end
 trackingID.columns = [hdrs[0] for hdrs in cur.description ]
 trackingID_list = ','.join('\'' + x + '\'' for x in trackingID['tracking_id'])
 print("End of Tracking ID pull")
+####################################################################################################################################################
+# Address
+print("Address Data Pull")
+# Opening a cursor
+cur = connection.cursor()
+
+# Reading query String from the file
+query = urllib.urlopen(targetURL + "address.txt").read()
+
+# Running the Query from Hive
+address = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list)).fetchall())
+# Headers
+address.columns = [hdrs[0] for hdrs in cur.description ]
+print("Address Data Pull Finished")
+
 ####################################################################################################################################################
 # Shipments - B2B
 print("Pulling Shipments from B2B")
@@ -130,22 +145,7 @@ lbh = pandas.DataFrame(cur.execute(query.replace('?',product_id_list)).fetchall(
 lbh.columns = [hdrs[0] for hdrs in cur.description]
 print("LBH Data Pull Finished")
 ####################################################################################################################################################
-# Address
-print("Address Data Pull")
-connection = pypyodbc.connect(DSN="Hive_DB", autocommit=True)
 
-# Opening a cursor
-cur = connection.cursor()
-
-# Reading query String from the file
-query = urllib.urlopen(targetURL + "address.txt").read()
-
-# Running the Query from Hive
-address = pandas.DataFrame(cur.execute(query.replace('?',ship_add_id_list)).fetchall())
-# Headers
-address.columns = [hdrs[0] for hdrs in cur.description ]
-print("Address Data Pull Finished")
-####################################################################################################################################################
 # Merging All the Data
 # Reading query String from the file
 print('Merging All the Data')

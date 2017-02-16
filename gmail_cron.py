@@ -57,7 +57,7 @@ def get_credentials():
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
-    
+
 def create_message_with_attachment(
     sender, to, subject, message_text, file):
   """Create a message for an email.
@@ -107,8 +107,8 @@ def create_message_with_attachment(
   message.attach(msg)
 
   return {'raw': base64.urlsafe_b64encode(message.as_string())}
-  
-  
+
+
 def send_message(service, user_id, message):
   """Send an email message.
 
@@ -123,8 +123,8 @@ def send_message(service, user_id, message):
   """
   message = (service.users().messages().send(userId=user_id, body=message).execute())
   return message
-  
-  
+
+
 def main():
     """Shows basic usage of the Gmail API.
 
@@ -151,7 +151,7 @@ credentials = get_credentials()
 service = build('gmail', 'v1', http=credentials.authorize(Http()))
 subject = 'Route Optimization for Kudlu on ' + str(datetime.now())
 fileName = 'D:\\SomSubhra\\Route Optimization\\Detail Path - Best Cost Output.csv'
-toList = 'phatak.a@flipkart.com;ashok.sinha@flipkart.com; sanjay.kukreja@flipkart.com;avik.c@flipkart.com'
+toList = 'phatak.a@flipkart.com;ashok.sinha@flipkart.com; sanjay.kukreja@flipkart.com;avik.c@flipkart.com; sanjeev.goyal@flipkart.com; dayanidhi.g@flipkart.com'
 #toList = 'phatak.a@flipkart.com;somsubhra.g@flipkart.com'
 mailBody = 'Please find attached Runsheet'
 send_message(service, "me", create_message_with_attachment('somsubhra.g@flipkart.com', toList, subject, mailBody, fileName))

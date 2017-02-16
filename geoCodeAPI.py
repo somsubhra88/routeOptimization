@@ -13,7 +13,7 @@ def point(addr1, addr2, pincode, city, state):
     pincode = quote(str(pincode), safe='')
     city = quote(str(city), safe='')
     state = quote(str(state), safe='')
-    # "?key=" + key +
+
     if addr2 != '':
         addr2 = quote(str(addr2), safe='')
         url1 = geoCodeAPI + \
@@ -83,3 +83,18 @@ def distance(point1, point2):
             if counter > 1000:
                 break
     return time
+
+def pincodeCentre(pincode):
+    import requests, json, re
+    from requests.utils import quote
+    # Default Parameters
+    key = "0e41de65-d2c5-4ebd-9cfb-a552dae27f3e"
+    header = {'referer': 'http://large-analytics.flipkart.com/'}
+
+    url = "http://10.85.50.71/pincode-info?key=" + key + "&pincode=" + str(pincode) + "&doctypes=Pincode_region"
+    resp = requests.get(url, headers=header, timeout=None)
+    northEast = resp.json()['pincode_info']['Pincode_region']['bounding_box']['northeast']
+    southWest = resp.json()['pincode_info']['Pincode_region']['bounding_box']['southwest']
+    point = {'lat': (northEast['lat'] + southWest['lat']) / 2, 'lng': (northEast['lng'] + southWest['lng']) / 2}
+
+    return point

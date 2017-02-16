@@ -79,7 +79,7 @@ q = 100  # Pheromone Calculation Parameter
 rho = 0.1  # Evaporation Constant
 maxIT = 1000  # Maximum Iteration
 # bestNoOfAnts = len(Q)-1 + ceil((sum(loadData.values()) - sum(Q[:-1]))/(Q[len(Q)-1]-10)) + 4 # Same as No of Vans
-bestNoOfAnts = 7
+bestNoOfAnts = 30
 # ----------------------------------------------------------------------------------------------------------------------
 # Creation of feasible Matrix
 confusionMatrix = {}
