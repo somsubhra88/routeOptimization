@@ -2,15 +2,15 @@ import pypyodbc
 import pandas
 from pandasql import sqldf
 from pandas import merge
-# from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 import urllib
 
 def isNaN(x):
     return str(x).lower() == 'nan'
 
 ekl_facilities='23'
-# start_date = (datetime.now() - timedelta(days = 1)).strftime('%Y-%m-%d')
-# end_date=(datetime.now() + timedelta(days = 0)).strftime('%Y-%m-%d')
+start_date = (datetime.now() - timedelta(days = 1)).strftime('%Y-%m-%d')
+end_date=(datetime.now() + timedelta(days = 0)).strftime('%Y-%m-%d')
 targetURL = "https://raw.githubusercontent.com/somsubhra88/routeOptimization/master/sql%20codes/"
 ####################################################################################################################################################
 # Tracking ID
@@ -27,7 +27,7 @@ query = urllib.urlopen(targetURL + "trackingID.txt").read()
 print("Fetching data")
 
 # Running the Query from Hive
-trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, ekl_facilities]).fetchall())
+trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, start_date, end_date, ekl_facilities, ekl_facilities]).fetchall())
 trackingID.columns = [hdrs[0] for hdrs in cur.description ]
 trackingID_list = ','.join('\'' + x + '\'' for x in trackingID['tracking_id'])
 print("End of Tracking ID pull")
