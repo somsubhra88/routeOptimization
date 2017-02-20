@@ -1,16 +1,2 @@
 ---- Latitude and Longitude Loop is started ----
 Removing Old latitude and longitude pickle File as it is not amtching with the recent Tracking IDs
----- latitude and longitude Iteration is Done ----
-Beat Information is Missing for 560070
-Beat Information is Missing for 560083
-Beat Information is Missing for 560083
-Beat Information is Missing for 560070
-Beat Information is Missing for 562112
-Beat Information is Missing for 560070
-Beat Information is Missing for 560083
-Beat Information is Missing for 560019
-Beat Information is Missing for 560041
-Beat Information is Missing for 560069
----- Time Matrix Iteration is Started ----
-Removing the Old Time Matrix and Creating a New Blank Time Matrix
-Time Matrix creation is Started
