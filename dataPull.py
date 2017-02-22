@@ -27,7 +27,7 @@ query = urllib.urlopen(targetURL + "trackingID.txt").read()
 print("Fetching data")
 
 # Running the Query from Hive
-trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, start_date, end_date, ekl_facilities, ekl_facilities]).fetchall())
+trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, ekl_facilities]).fetchall())
 trackingID.columns = [hdrs[0] for hdrs in cur.description ]
 trackingID_list = ','.join('\'' + x + '\'' for x in trackingID['tracking_id'])
 print("End of Tracking ID pull")

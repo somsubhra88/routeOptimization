@@ -1,5 +1,6 @@
 SELECT Distinct
-     fsn as product_id, 
+     fsn as product_id,
+     max(cms_vertical) as vertical,
      max(length) as fsn_length, 
      max(breadth) as fsn_breadth, 
      max(height) as fsn_height,
