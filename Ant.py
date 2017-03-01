@@ -18,7 +18,7 @@ import progressbar
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
-distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
+# distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
 # distanceMatrix('MAN_9.csv', {'lat': 28.714921, 'lng': 77.315002}) #Mandoli
 # distanceMatrix('CHV_10.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
 
@@ -53,21 +53,15 @@ for i in trackingID[:-1]:
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
 
-# All the travel time less 5 minutes is rounding of to 5 minutes
-for i in trackingID[:-1]:
-    for j in trackingID[1:]:
-        if timeMatrix[i][j] < 5.00/60:
-            timeMatrix[i][j] = 5.00/60
-
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Global Variable
 
 # Business Constraints
-deliveryTime = 0.25  # Delivery Time in Hours
+deliveryTime = float(8)/60  # Delivery Time in Hours
 Q = [130, 130] # Capacity Limit
 T = 8.5  # Travel Time Limit
-saLimit = 0.85  # Slot Adherence Limit
+saLimit = 0.75  # Slot Adherence Limit
 maxOrders = 100
 
 # Algorithm Parameters
@@ -163,17 +157,15 @@ for iteration in range(maxIT):
                 decisionMatrix[ant][i][j] = 0
         lastNode = 'Hub'
         while lastNode != 'Sink':
-            # Current Travel time Excluding Return Time
+            # Current Travel time Including Return Time
             TT = sum(decisionMatrix[ant][i][j] * timeMatrix[i][j] for i in trackingID[:-1] for j in trackingID[1:]) + \
-                 sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:]) * deliveryTime
+                 sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:]) * deliveryTime + timeMatrix[lastNode]['Hub']
             # Total Capacity
-            capacity = sum(
-                sum(decisionMatrix[ant][i][j] for j in trackingID[1:]) * loadData[i] for i in trackingID[1:-1])
+            capacity = sum(sum(decisionMatrix[ant][i][j] for j in trackingID[1:]) * loadData[i] for i in trackingID[1:-1])
             # No of Orders
             noOfOrders = sum(decisionMatrix[ant][i][j] for i in trackingID[:-1] for j in trackingID[1:])
             # Time Travel Constraints and Capacity Constraints
             if TT > T or capacity > Q[min(ant,(len(Q) - 1))] or noOfOrders > maxOrders:
-                # print('TT ' + str(TT) + ' and Capacity ' + str(capacity))
                 nextNode = 'Sink'
             else:
                 nextNode = nextHub(transitionMatrix[lastNode], nodeList)

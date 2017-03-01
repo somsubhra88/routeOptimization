@@ -1,6 +1,6 @@
 def distanceMatrix(file, Hub):
     from geoCodeAPI import point, distance
-    # from dynamicBeat import dynamicBeat
+    from dynamicBeat import dynamicBeat
     from datetime import datetime
     import pickle
     import csv
@@ -93,40 +93,6 @@ def distanceMatrix(file, Hub):
 
     addressDetail = delKeys(addressDetail, unresolvedTrackingID)
     pickle.dump(addressDetail, open("addressDetail.p", "wb"))
-    # Dynamic Beat
-    # pincodeList = []
-    # for tID in trackingID[1:]:
-    #     pincodeList.append(addressDetail[tID]['address_pincode'])
-    # dynamicBeat(pincodeList, None, 7)
-    # Beat Mapping
-    beatFile = open("Beat.csv", 'r')
-    beat = csv.reader(beatFile)
-    headers = next(beat)
-
-    beatCol = {}
-    for h in headers:
-        beatCol[h] = []
-
-    for row in beat:
-        for h, v in zip(headers, row):
-            beatCol[h].append(v)
-
-    beatInf = {}
-    for tID in column['tracking_id'][1:]:
-        if tID not in unresolvedTrackingID:
-            idx = column['tracking_id'][1:].index(tID)
-            pinCode = column['address_pincode'][idx]
-            if pinCode in beatCol['Pin Code']:
-                beatInf[tID] = beatCol['Beat'][beatCol['Pin Code'].index(pinCode)]
-            else:
-                print('Beat Information is Missing for ' + pinCode)
-                pinCodeDiff = []
-                pinCodeDiff[:] = [ abs(x - int(pinCode)) for x in list(map(int, beatCol['Pin Code']))]
-                beatInf[tID] = beatCol['Beat'][pinCodeDiff.index(min(pinCodeDiff))]
-
-    beatInf = delKeys(beatInf, unresolvedTrackingID)
-    # Saving The Beat Data
-    pickle.dump(beatInf, open("beatInf.p", "wb"))
 
     # Forming the Time Matrix
     print('---- Time Matrix Iteration is Started ----')
@@ -223,3 +189,46 @@ def distanceMatrix(file, Hub):
     # Saving The Load Data
     loadData = delKeys(loadData, unresolvedTrackingID)
     pickle.dump(loadData, open("loadData.p", "wb"))
+
+    # Dynamic Beat
+    # pincodeList = []
+    # for tID in [x for x in trackingID if x not in ['Hub']]:
+    #     pincodeList.append(addressDetail[tID]['address_pincode'])
+    # pincodeList = list(set(pincodeList))
+    # # Volumetric Load Calculation
+    # load = {}
+    # for i in pincodeList:
+    #     load[i] = 0
+    #
+    # for tID in [x for x in trackingID if x not in ['Hub']]:
+    #     load[addressDetail[tID]['address_pincode']] += loadData[tID]
+    # dynamicBeat(pincodeList, None, load, 125)
+    # Beat Mapping
+    beatFile = open("Beat.csv", 'r')
+    beat = csv.reader(beatFile)
+    headers = next(beat)
+
+    beatCol = {}
+    for h in headers:
+        beatCol[h] = []
+
+    for row in beat:
+        for h, v in zip(headers, row):
+            beatCol[h].append(v)
+
+    beatInf = {}
+    for tID in column['tracking_id'][1:]:
+        if tID not in unresolvedTrackingID:
+            idx = column['tracking_id'][1:].index(tID)
+            pinCode = column['address_pincode'][idx]
+            if pinCode in beatCol['Pin Code']:
+                beatInf[tID] = beatCol['Beat'][beatCol['Pin Code'].index(pinCode)]
+            else:
+                print('Beat Information is Missing for ' + pinCode)
+                pinCodeDiff = []
+                pinCodeDiff[:] = [ abs(x - int(pinCode)) for x in list(map(int, beatCol['Pin Code']))]
+                beatInf[tID] = beatCol['Beat'][pinCodeDiff.index(min(pinCodeDiff))]
+
+    beatInf = delKeys(beatInf, unresolvedTrackingID)
+    # Saving The Beat Data
+    pickle.dump(beatInf, open("beatInf.p", "wb"))

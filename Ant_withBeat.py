@@ -52,20 +52,13 @@ for i in trackingID[:-1]:
             timeMatrix[i][j] = 2
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
-
-# All the travel time less 5 minutes is rounding of to 5 minutes
-for i in trackingID[:-1]:
-    for j in trackingID[1:]:
-        if timeMatrix[i][j] < 5.00/60:
-            timeMatrix[i][j] = 5.00/60
-
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Global Variable
 
 # Business Constraints
-deliveryTime = 0.25  # Delivery Time in Hours
-Q = [130, 130]  # Capacity Limit
+deliveryTime = float(8/60)  # Delivery Time in Hours
+Q = [135, 135]  # Capacity Limit
 T = 11  # Travel Time Limit
 saLimit = 0.75  # Slot Adherence Limit
 maxOrders = 100

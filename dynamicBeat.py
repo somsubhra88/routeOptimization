@@ -1,14 +1,11 @@
-def dynamicBeat(pincodeList, pincode, noOfBeats):
+def dynamicBeat(pincodeList, pincode, load, vanVolume):
     from pincodeMerging import pincodeMerge
     from pulp import lpSum, LpVariable, LpProblem, LpMinimize, LpBinary, LpStatus, value
+    import csv
+    from math import ceil
     # --------------------------------------------------------------------------------------------------
-    # Pincode Level Load Calculation
-    load = {}
-    for p in list(set(pincodeList)):
-        load[p] = sum(1 for x in pincodeList if x == p)
-
     pincodeList = list(set(pincodeList))
-
+    noOfBeats = max(8, int(ceil(float(sum(load.values()))/vanVolume)))
     if pincode is not None:
         pincodeMerge = {}
         # Importing Pincode Merging data
@@ -69,8 +66,9 @@ def dynamicBeat(pincodeList, pincode, noOfBeats):
 
     # Constraints - 3: Pincode should be merged as per the Pincode merging Rule
     for i in pincodeList:
-        for j in range(noOfBeats):
-            prob += lpSum(pincodeMerge[i][k] * X[(k,j)] for k in pincodeList) >= 2 * X[(i,j)]
+        if load[i] < meanLoad:
+            for j in range(noOfBeats):
+                prob += lpSum(pincodeMerge[i][k] * X[(k,j)] for k in pincodeList) >= 2 * X[(i,j)]
 
     # Constraints - 4: All the Beats Should be Used
     for j in range(noOfBeats):
