@@ -43,8 +43,7 @@ def get_credentials():
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'gmail-python-quickstart.json')
+    credential_path = os.path.join(credential_dir,'gmail-python-quickstart.json')
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -58,8 +57,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def create_message_with_attachment(
-    sender, to, subject, message_text, file):
+def create_message_with_attachment(sender, to, subject, message_text, file):
   """Create a message for an email.
 
   Args:
@@ -86,19 +84,19 @@ def create_message_with_attachment(
     content_type = 'application/octet-stream'
   main_type, sub_type = content_type.split('/', 1)
   if main_type == 'text':
-    fp = open(file, 'rb')
+    fp = open(file, 'r')
     msg = MIMEText(fp.read(), _subtype=sub_type)
     fp.close()
   elif main_type == 'image':
-    fp = open(file, 'rb')
+    fp = open(file, 'r')
     msg = MIMEImage(fp.read(), _subtype=sub_type)
     fp.close()
   elif main_type == 'audio':
-    fp = open(file, 'rb')
+    fp = open(file, 'r')
     msg = MIMEAudio(fp.read(), _subtype=sub_type)
     fp.close()
   else:
-    fp = open(file, 'rb')
+    fp = open(file, 'r')
     msg = MIMEBase(main_type, sub_type)
     msg.set_payload(fp.read())
     fp.close()
@@ -106,7 +104,7 @@ def create_message_with_attachment(
   msg.add_header('Content-Disposition', 'attachment', filename=filename)
   message.attach(msg)
 
-  return {'raw': base64.urlsafe_b64encode(message.as_string())}
+  return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
 
 def send_message(service, user_id, message):
@@ -121,8 +119,12 @@ def send_message(service, user_id, message):
   Returns:
     Sent Message.
   """
-  message = (service.users().messages().send(userId=user_id, body=message).execute())
-  return message
+  try:
+      message = (service.users().messages().send(userId=user_id, body=message).execute())
+      print('Message Id: %s' % message['id'])
+      return message
+  except:
+    print('An error occurred:')
 
 
 def main():
@@ -132,26 +134,16 @@ def main():
     of the user's Gmail account.
     """
     credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('gmail', 'v1', http=http)
+    service = build('gmail', 'v1', http=credentials.authorize(Http()))
 
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
+    subject = 'Route Optimization for Kudlu on ' + str(datetime.now())
+    fileName = 'D:\\SomSubhra\\Route Optimization\\Detail Path - Optimized Output.csv'
+    toList = 'phatak.a@flipkart.com;ashok.sinha@flipkart.com; sanjay.kukreja@flipkart.com;avik.c@flipkart.com; sanjeev.goyal@flipkart.com; dayanidhi.g@flipkart.com'
+    #toList = 'phatak.a@flipkart.com;somsubhra.g@flipkart.com'
+    mailBody = 'Please find attached Runsheet'
 
-    if not labels:
-        print('No labels found.')
-    else:
-      print('Labels:')
-      for label in labels:
-        print(label['name'])
+    send_message(service, "me", create_message_with_attachment('somsubhra.g@flipkart.com', toList, subject, mailBody, fileName))
 
 
-#main()
-credentials = get_credentials()
-service = build('gmail', 'v1', http=credentials.authorize(Http()))
-subject = 'Route Optimization for Kudlu on ' + str(datetime.now())
-fileName = 'D:\\SomSubhra\\Route Optimization\\Detail Path - Best Cost Output.csv'
-toList = 'phatak.a@flipkart.com;ashok.sinha@flipkart.com; sanjay.kukreja@flipkart.com;avik.c@flipkart.com; sanjeev.goyal@flipkart.com; dayanidhi.g@flipkart.com'
-#toList = 'phatak.a@flipkart.com;somsubhra.g@flipkart.com'
-mailBody = 'Please find attached Runsheet'
-send_message(service, "me", create_message_with_attachment('somsubhra.g@flipkart.com', toList, subject, mailBody, fileName))
+if __name__ == '__main__':
+    main()

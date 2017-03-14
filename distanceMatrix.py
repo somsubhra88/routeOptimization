@@ -21,7 +21,7 @@ def distanceMatrix(file, Hub):
     # --------------------------------------------------------------------------
     def delKeys(dict, list):
         for _ in list:
-            if dict.has_key(_):
+            if _ in dict:
                 del(dict[_])
         return dict
     # --------------------------------------------------------------------------
@@ -191,18 +191,18 @@ def distanceMatrix(file, Hub):
     pickle.dump(loadData, open("loadData.p", "wb"))
 
     # Dynamic Beat
-    # pincodeList = []
-    # for tID in [x for x in trackingID if x not in ['Hub']]:
-    #     pincodeList.append(addressDetail[tID]['address_pincode'])
-    # pincodeList = list(set(pincodeList))
-    # # Volumetric Load Calculation
-    # load = {}
-    # for i in pincodeList:
-    #     load[i] = 0
-    #
-    # for tID in [x for x in trackingID if x not in ['Hub']]:
-    #     load[addressDetail[tID]['address_pincode']] += loadData[tID]
-    # dynamicBeat(pincodeList, None, load, 125)
+    pincodeList = []
+    for tID in [x for x in trackingID if x not in ['Hub']]:
+        pincodeList.append(addressDetail[tID]['address_pincode'])
+    pincodeList = list(set(pincodeList))
+    # Volumetric Load Calculation
+    load = {}
+    for i in pincodeList:
+        load[i] = 0
+
+    for tID in [x for x in trackingID if x not in ['Hub']]:
+        load[addressDetail[tID]['address_pincode']] += loadData[tID]
+    dynamicBeat(pincodeList, 'Pincode Merging.csv', load, 125)
     # Beat Mapping
     beatFile = open("Beat.csv", 'r')
     beat = csv.reader(beatFile)

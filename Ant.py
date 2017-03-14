@@ -15,10 +15,11 @@ from datetime import timedelta
 import csv
 from math import exp
 import progressbar
+from numpy import percentile
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
-# distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
+distanceMatrix(str(workingDir + 'route optimization data.csv'), {'lat': 12.8852659, 'lng': 77.6533668}) #Kudlu
 # distanceMatrix('MAN_9.csv', {'lat': 28.714921, 'lng': 77.315002}) #Mandoli
 # distanceMatrix('CHV_10.csv', {'lat': 19.110976, 'lng': 72.893396}) #Chandivali
 
@@ -29,6 +30,13 @@ slotData = pickle.load(open(workingDir + 'slotData.p', 'rb'))
 loadData = pickle.load(open(workingDir + 'loadData.p', 'rb'))
 addressDetail = pickle.load(open(workingDir + 'addressDetail.p', 'rb'))
 
+
+# Faraway Delivery Location
+farawayList = []
+for tID in trackingID[1:-1]:
+    travelTimeCutOff = percentile(list(timeMatrix[tID].values()), 90)
+    if travelTimeCutOff > 2:
+        farawayList.append(tID)
 
 # Introducing Sink
 trackingID.append('Sink')
@@ -52,17 +60,18 @@ for i in trackingID[:-1]:
             timeMatrix[i][j] = 2
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
-
 # ----------------------------------------------------------------------------------------------------------------------
-
+# Removing the the farthest delivery points
+trackingID = [z for z in trackingID if z not in farawayList]
+# ----------------------------------------------------------------------------------------------------------------------
 # Global Variable
 
 # Business Constraints
-deliveryTime = float(8)/60  # Delivery Time in Hours
+deliveryTime = float(15)/60  # Delivery Time in Hours
 Q = [130, 130] # Capacity Limit
 T = 8.5  # Travel Time Limit
 saLimit = 0.75  # Slot Adherence Limit
-maxOrders = 100
+maxOrders = 30
 
 # Algorithm Parameters
 alpha = 1  # Transition Matrix Parameter - power of Pheromone
@@ -246,7 +255,7 @@ route = updateRoute(route,timeMatrix, slotData, deliveryTime)
 # No of Nodes Visited
 uniqueNodes = routeEntry(route)
 print("No of Nodes Visited " + str(len(uniqueNodes) - 2))
-detailPath = detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Last Output')
+detailPath = detailPath(route, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Last Output')
 
 # Best Case Scenario
 try:
@@ -254,7 +263,7 @@ try:
     # Update the Route
     bestRoute = updateRoute(bestRoute, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRoute, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Optimized Output')
+    detailPath = detailPath(bestRoute, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Optimized Output')
 except NameError:
     print('Best Decision Matrix is not Defined')
 
@@ -264,7 +273,7 @@ try:
     # Update the Route
     bestRouteOnly = updateRoute(bestRouteOnly, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRouteOnly, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Best Cost Output')
+    detailPath = detailPath(bestRouteOnly, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Best Cost Output')
 except NameError:
     print('Best Decision Matrix is not Defined')
 

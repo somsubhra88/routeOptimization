@@ -22,7 +22,7 @@ connection = pypyodbc.connect(driver = '{MySQL ODBC 5.2a Driver}', server = 'erp
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "trackingID.txt").read()
+query = urllib.request.urlopen(targetURL + "trackingID.txt").read()
 
 print("Fetching data")
 
@@ -38,10 +38,11 @@ print("Address Data Pull")
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "address.txt").read()
+query = urllib.request.urlopen(targetURL + "address.txt").read().decode()
 
 # Running the Query from Hive
-address = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list)).fetchall())
+address = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list).encode('utf-8')).fetchall())
+
 # Headers
 address.columns = [hdrs[0] for hdrs in cur.description ]
 print("Address Data Pull Finished")
@@ -55,10 +56,10 @@ connection = pypyodbc.connect(DSN="flo_warehouse_b2b", autocommit=True)
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "shipment_b2b.txt").read()
+query = urllib.request.urlopen(targetURL + "shipment_b2b.txt").read().decode()
 
 # Running the Query from Hive
-shipment_b2b = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list)).fetchall())
+shipment_b2b = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list).encode('utf-8')).fetchall())
 shipment_b2b.columns = [hdrs[0] for hdrs in cur.description ]
 
 # Shipments - B2C
@@ -69,11 +70,11 @@ connection = pypyodbc.connect(DSN="flo_warehouse_b2c", autocommit=True)
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "shipment_b2c.txt").read()
+query = urllib.request.urlopen(targetURL + "shipment_b2c.txt").read().decode()
 
 headers = ['merchant_ref_id', 'tracking_id', 'courier_name', 'shipment_company']
 # Running the Query from Hive
-shipment_b2c = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list)).fetchall(), columns = headers)
+shipment_b2c = pandas.DataFrame(cur.execute(query.replace('?',trackingID_list).encode('utf-8')).fetchall(), columns = headers)
 
 # Concatenate B2B and B2C
 shipment = pandas.concat([shipment_b2b, shipment_b2c], axis = 0, ignore_index = True)
@@ -90,17 +91,17 @@ cur = connection.cursor()
 
 # Reading query String from the file
 
-query = urllib.urlopen(targetURL + "fulfillment.txt").read()
+query = urllib.request.urlopen(targetURL + "fulfillment.txt").read().decode()
 
 # Running the Query from Hive
-fulfillment = pandas.DataFrame(cur.execute(query.replace('?',mer_ref_id_list)).fetchall())
+fulfillment = pandas.DataFrame(cur.execute(query.replace('?',mer_ref_id_list).encode('utf-8')).fetchall())
 # Headers
 fulfillment.columns =  [hdrs[0] for hdrs in cur.description ]
 
 # Fulfillment Data Manupulation
 pysqldf = lambda q: sqldf(q, globals())
 
-query = urllib.urlopen(targetURL + "fulfillment_1.txt").read()
+query = urllib.request.urlopen(targetURL + "fulfillment_1.txt").read().decode()
 fulfillment_1 = pysqldf(query)
 fulfillment_1.slot_ref_id = fulfillment_1.slot_ref_id.astype(str)
 
@@ -117,10 +118,10 @@ connection = pypyodbc.connect(DSN="facilities", autocommit=True)
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "slot.txt").read()
+query = urllib.request.urlopen(targetURL + "slot.txt").read().decode()
 
 # Running the Query from Hive
-slot = pandas.DataFrame(cur.execute(query.replace('?',slot_ref_id_list)).fetchall())
+slot = pandas.DataFrame(cur.execute(query.replace('?',slot_ref_id_list).encode('utf-8')).fetchall())
 # Headers
 slot.columns = [hdrs[0] for hdrs in cur.description ]
 slot.slot_ref_id = slot.slot_ref_id.astype(str)
@@ -137,10 +138,10 @@ connection = pypyodbc.connect(DSN="flo_warehouse_b2b", autocommit=True)
 cur = connection.cursor()
 
 # Reading query String from the file
-query = urllib.urlopen(targetURL + "lbh.txt").read()
+query = urllib.request.urlopen(targetURL + "lbh.txt").read().decode()
 
 # Running the Query from Hive
-lbh = pandas.DataFrame(cur.execute(query.replace('?',product_id_list)).fetchall())
+lbh = pandas.DataFrame(cur.execute(query.replace('?',product_id_list).encode('utf-8')).fetchall())
 # Headers
 lbh.columns = [hdrs[0] for hdrs in cur.description]
 print("LBH Data Pull Finished")

@@ -15,6 +15,7 @@ from datetime import timedelta
 import csv
 from math import exp, fabs
 import progressbar
+from numpy import percentile
 
 # distanceMatrix('BHI6.csv', {'lat': 19.237481, 'lng': 73.034974}) # Bhiwandi
 # distanceMatrix('KOL6.csv', {'lat': 22.739977, 'lng': 88.317647}) #Kolkata
@@ -29,6 +30,13 @@ slotData = pickle.load(open(workingDir + 'slotData.p', 'rb'))
 loadData = pickle.load(open(workingDir + 'loadData.p', 'rb'))
 addressDetail = pickle.load(open(workingDir + 'addressDetail.p', 'rb'))
 beat = pickle.load(open(workingDir + 'beatInf.p', 'rb'))
+
+# Faraway Delivery Location
+farawayList = []
+for tID in trackingID[1:-1]:
+    travelTimeCutOff = percentile(list(timeMatrix[tID].values()), 90)
+    if travelTimeCutOff > 2:
+        farawayList.append(tID)
 
 # Introducing Sink
 trackingID.append('Sink')
@@ -53,15 +61,17 @@ for i in trackingID[:-1]:
         elif timeMatrix[i][j] > 2.5:
             timeMatrix[i][j] = 1 + avg
 # ----------------------------------------------------------------------------------------------------------------------
-
+# Removing the the farthest delivery points
+trackingID = [z for z in trackingID if z not in farawayList]
+# ----------------------------------------------------------------------------------------------------------------------
 # Global Variable
 
 # Business Constraints
-deliveryTime = float(8/60)  # Delivery Time in Hours
+deliveryTime = float(15/60)  # Delivery Time in Hours
 Q = [135, 135]  # Capacity Limit
-T = 11  # Travel Time Limit
-saLimit = 0.75  # Slot Adherence Limit
-maxOrders = 100
+T = 12  # Travel Time Limit
+saLimit = 0.80  # Slot Adherence Limit
+maxOrders = 30
 
 # Algorithm Parameters
 alpha = 1  # Transition Matrix Parameter - power of Pheromone
@@ -70,7 +80,7 @@ lamda = 2000  # Slot Adherence Factor
 saImp = 1 # 0 for without Slot Adherence Importance
 q = 100  # Pheromone Calculation Parameter
 rho = 0.1  # Evaporation Constant
-maxIT = 1000  # Maximum Iteration
+maxIT = 2000  # Maximum Iteration
 # bestNoOfAnts = len(Q)-1 + ceil((sum(loadData.values()) - sum(Q[:-1]))/(Q[len(Q)-1]-10)) + 4 # Same as No of Vans
 bestNoOfAnts = 30
 # ----------------------------------------------------------------------------------------------------------------------
@@ -144,7 +154,7 @@ for iteration in range(maxIT):
     for b in list(set(beat.values())):
         trackingID = deepcopy(originalTrackingID)
         for key, val in beat.items():
-            if val != b:
+            if (val != b and key in trackingID):
                 trackingID.remove(key)
 
         # Slot Adherence Dictionary
@@ -254,7 +264,7 @@ route = updateRoute(route,timeMatrix, slotData, deliveryTime)
 # No of Nodes Visited
 uniqueNodes = routeEntry(route)
 print("No of Nodes Visited " + str(len(uniqueNodes) - 2))
-detailPath = detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Last Output')
+detailPath = detailPath(route, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Last Output')
 
 # Best Case Scenario
 try:
@@ -262,7 +272,7 @@ try:
     # Update the Route
     bestRoute = updateRoute(bestRoute, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRoute, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Optimized Output')
+    detailPath = detailPath(bestRoute, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Optimized Output')
 except NameError:
     print('Best Decision Matrix is not Defined')
 
@@ -272,6 +282,6 @@ try:
     # Update the Route
     bestRouteOnly = updateRoute(bestRouteOnly, timeMatrix, slotData, deliveryTime)
     from antFunctions import detailPath
-    detailPath = detailPath(bestRouteOnly, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Best Cost Output')
+    detailPath = detailPath(bestRouteOnly, farawayList, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, workingDir, 'Best Cost Output')
 except NameError:
     print('Best Decision Matrix is not Defined')

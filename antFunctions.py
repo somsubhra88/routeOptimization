@@ -51,7 +51,7 @@ def routeEntry(route):
         touredTID  = touredTID | set(route[i])
     return touredTID
 
-def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, directory, fileName):
+def detailPath(route, unplannedTrackingID, LatLngData, slotData, timeMatrix, loadData, deliveryTime, addressDetail, directory, fileName):
     from datetime import timedelta
     import csv
     noOfVans = len(route)
@@ -114,7 +114,13 @@ def detailPath(route, LatLngData, slotData, timeMatrix, loadData, deliveryTime, 
 
             detailPath.append([v+1, frm, Lat_frm, Lng_frm, to, Lat_to, Lng_to, slotStartTime, slotEndTime, t_ij,
                                hittingTime, slotAdherence, load, pincode, city, state, addr1, addr2])
-
+    # For Unplanned Orders
+    for uID in unplannedTrackingID:
+        detailPath.append(['Unplanned', None, None, None, uID, LatLngData[uID]['lat'], LatLngData[uID]['lng'],
+                            slotData[uID]['start'], slotData[uID]['end'], None, None, None, loadData[uID],
+                            addressDetail[uID]['address_pincode'], addressDetail[uID]['address_city'],
+                            addressDetail[uID]['address_state'], addressDetail[uID]['address_line1'], addressDetail[uID]['address_line2']])
+                                                      
     csv.register_dialect('customDialect',delimiter=',', quotechar='"', doublequote=True,skipinitialspace=True,
                          lineterminator='\n',quoting=csv.QUOTE_MINIMAL)
     with open(directory + 'Detail Path - ' + str(fileName) + '.csv','w') as detailPathCSV:
