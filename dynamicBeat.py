@@ -54,7 +54,7 @@ def dynamicBeat(pincodeList, pincode, load, vanVolume):
     # Penalty value for excedding the volumetric capacity
     penaltyVolume = 50
     # Penalty Value for number of Beats
-    penaltyBeats = 1000
+    # penaltyBeats = 1000
     # Upper Limit of the volumetric capacity
     U = vanVolume
     # Beats Max Number
@@ -71,8 +71,8 @@ def dynamicBeat(pincodeList, pincode, load, vanVolume):
     # --------------------------------------------------------------------------------------------------
     # Objective
     prob += lpSum(penaltyCloseness * S1[(i,j)] for i in range(noOfBeats) for j in [z for z in range(noOfBeats) if z != i]) +\
-                 lpSum(penaltyVolume * S2[i] for i in range(noOfBeats)) \
-                     + penaltyBeats * lpSum(Z[c] for c in range(noOfBeats))
+                 lpSum(penaltyVolume * S2[i] for i in range(noOfBeats)) 
+                    #  + penaltyBeats * lpSum(Z[c] for c in range(noOfBeats))
     # --------------------------------------------------------------------------------------------------
     # Constraints
     # Constraints - 1: All the pincode Should be assigned to some beats
@@ -95,11 +95,11 @@ def dynamicBeat(pincodeList, pincode, load, vanVolume):
         for c2 in [z for z in range(noOfBeats) if z != c1]:
             prob += lpSum(load[i] * X[(i,c1)] for i in pincodeList) - lpSum(load[i] * X[(i,c2)] for i in pincodeList) - S1[(c1,c2)] <= b
 
-    # Constraints - 5: Beats assignment Constraint
-    for c in range(noOfBeats):
-        prob += Z[c] <= lpSum(X[(i,c)] for i in pincodeList)
-        for i in pincodeList:
-            prob += Z[c] >= X[(i,c)]
+    # # Constraints - 5: Beats assignment Constraint
+    # for c in range(noOfBeats):
+    #     prob += Z[c] <= lpSum(X[(i,c)] for i in pincodeList)
+    #     for i in pincodeList:
+    #         prob += Z[c] >= X[(i,c)]
     # --------------------------------------------------------------------------------------------------
     # Solving
     status = prob.solve(CPLEX_CMD(path = r'C:\x86_win32\cplex.exe'))

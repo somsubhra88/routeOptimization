@@ -202,7 +202,7 @@ def distanceMatrix(file, Hub):
 
     for tID in [x for x in trackingID if x not in ['Hub']]:
         load[addressDetail[tID]['address_pincode']] += loadData[tID]
-    dynamicBeat(pincodeList, 'Pincode Merging.csv', load, 125)
+    dynamicBeat(pincodeList, 'Pincode Merging.csv', load, 130)
     # Beat Mapping
     beatFile = open("Beat.csv", 'r')
     beat = csv.reader(beatFile)
