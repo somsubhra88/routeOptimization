@@ -71,7 +71,7 @@ def dynamicBeat(pincodeList, pincode, load, vanVolume):
     # --------------------------------------------------------------------------------------------------
     # Objective
     prob += lpSum(penaltyCloseness * S1[(i,j)] for i in range(noOfBeats) for j in [z for z in range(noOfBeats) if z != i]) +\
-                 lpSum(penaltyVolume * S2[i] for i in range(noOfBeats)) 
+                 lpSum(penaltyVolume * S2[i] for i in range(noOfBeats))
                     #  + penaltyBeats * lpSum(Z[c] for c in range(noOfBeats))
     # --------------------------------------------------------------------------------------------------
     # Constraints

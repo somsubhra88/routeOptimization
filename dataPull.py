@@ -9,14 +9,14 @@ def isNaN(x):
     return str(x).lower() == 'nan'
 
 ekl_facilities='23'
-start_date = (datetime.now() - timedelta(days = 1)).strftime('%Y-%m-%d')
-end_date=(datetime.now() + timedelta(days = 0)).strftime('%Y-%m-%d')
+start_date = (datetime.now() - timedelta(days = 15)).strftime('%Y-%m-%d')
+end_date=(datetime.now() - timedelta(days = 14)).strftime('%Y-%m-%d')
 targetURL = "https://raw.githubusercontent.com/somsubhra88/routeOptimization/master/sql%20codes/"
 ####################################################################################################################################################
 # Tracking ID
 print("Pulling the tracking IDs")
 # Using pypyodbc driver creating hive connection
-connection = pypyodbc.connect(driver = '{MySQL ODBC 5.2a Driver}', server = 'erp-logis-analytics-slave.nm.flipkart.com', uid = 'erp-fklogis_ro', pwd = 'Veey4nu1',  database = 'fklogistics')
+connection = pypyodbc.connect(driver = '{MySQL ODBC 5.2a Driver}', server = '10.85.156.146', uid = 'analytics_user', pwd = 'WER56DF3',  database = 'fklogistics')
 
 # Opening a cursor
 cur = connection.cursor()
@@ -27,7 +27,7 @@ query = urllib.request.urlopen(targetURL + "trackingID.txt").read()
 print("Fetching data")
 
 # Running the Query from Hive
-trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, ekl_facilities]).fetchall())
+trackingID = pandas.DataFrame(cur.execute(query,[ekl_facilities, ekl_facilities, start_date, end_date]).fetchall())
 trackingID.columns = [hdrs[0] for hdrs in cur.description ]
 trackingID_list = ','.join('\'' + x + '\'' for x in trackingID['tracking_id'])
 print("End of Tracking ID pull")

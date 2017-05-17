@@ -34,7 +34,7 @@ beat = pickle.load(open(workingDir + 'beatInf.p', 'rb'))
 # Faraway Delivery Location
 farawayList = []
 for tID in trackingID[1:-1]:
-    travelTimeCutOff = percentile(list(timeMatrix[tID].values()), 90)
+    travelTimeCutOff = percentile(list(timeMatrix[tID].values()), 25)
     if travelTimeCutOff > 2:
         farawayList.append(tID)
 

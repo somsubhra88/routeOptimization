@@ -94,8 +94,11 @@ def point(addr1, addr2, pincode, city, state):
             return point
         else:
             point = googleGeoCode(addr1, addr2, pincode, city, state)
-            if latLngValidation(point, pincode):
-                return point
+            if point != "error finding locations":
+                if latLngValidation(point, pincode):
+                    return point
+                else:
+                    return pincodeCentre(pincode)
             else:
                 return pincodeCentre(pincode)
     else:
